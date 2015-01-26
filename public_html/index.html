@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        if (navigator.geolocation) {
+          navigator.geolocation.watchPosition(showPosition, showError);
+        } else {
+          $("#position").html("Geolocation is not supported by this browser.");
+        }
+      });
+      function showPosition(position) {
+        console.log("Position received: " + JSON.stringify(position));
+        $("#position").html("Latitude: " + position.coords.latitude + "<br />" +
+                "Longitude: " + position.coords.longitude + "<br />" +
+                "Position Accuracy: " + position.coords.accuracy + "<br />" +
+                "Altitude: " + position.coords.altitude + " ([-]" + position.coords.altitudeAccuracy + ")<br />" +
+                "Heading: " + position.coords.heading + "<br />" +
+                "Speed: " + position.coords.speed + "<br />" +
+                "<br />(<i>Last updated at " + new Date(position.timestamp) + "</i>)");
+        showMap(position.coords.latitude, position.coords.longitude);
+      }
+
+      function showError(error) {
+        clearMap();
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            $("#position").html("User denied the request for Geolocation.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            $("#position").html("Location information is unavailable.");
+            break;
+          case error.TIMEOUT:
+            $("#position").html("The request to get user location timed out.");
+            break;
+          case error.UNKNOWN_ERROR:
+            $("#position").html("An unknown error occurred.");
+            break;
+        }
+      }
+
+      function showMap(latitude, longitude) {
+        var latlon = latitude + "," + longitude;
+        var img_url = "http://maps.googleapis.com/maps/api/staticmap?center=" + latlon + "&zoom=14&size=400x300&sensor=false";
+        $("#map").html("<img src='" + img_url + "'>");
+      }
+      
+      function clearMap() {
+        $("#map").html("");
+      }
+    </script>
+  </head>
+  <body>
+    <h2>Current position:</h2>
+    <div id="position"></div><br />
+    <div id="map"></div>
+  </body>
+</html>
