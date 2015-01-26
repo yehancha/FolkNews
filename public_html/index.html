@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="js/location.js"></script>
     <script>
       $(document).ready(function() {
         if (navigator.geolocation) {
@@ -21,10 +26,12 @@
                 "Speed: " + position.coords.speed + "<br />" +
                 "<br />(<i>Last updated at " + new Date(position.timestamp) + "</i>)");
         showMap(position.coords.latitude, position.coords.longitude);
+        locationName(position.coords.latitude, position.coords.longitude, showLocation);
       }
 
       function showError(error) {
         clearMap();
+        clearLocation();
         switch (error.code) {
           case error.PERMISSION_DENIED:
             $("#position").html("User denied the request for Geolocation.");
@@ -46,15 +53,57 @@
         var img_url = "http://maps.googleapis.com/maps/api/staticmap?center=" + latlon + "&zoom=14&size=400x300&sensor=false";
         $("#map").html("<img src='" + img_url + "'>");
       }
-      
+
       function clearMap() {
         $("#map").html("");
+      }
+
+      function showLocation(location) {
+        $("#location").html(location);
+      }
+
+      function clearLocation() {
+        $("#location").html("");
+      }
+
+      function locationName(lat, lng, callback) {
+        var latlng = new google.maps.LatLng(lat, lng);
+        new google.maps.Geocoder().geocode({'latLng': latlng}, function(results, status) {
+          if (status == google.maps.GeocoderStatus.OK) {
+            if (results[1]) {
+              //formatted address
+              var info = "Address: " + results[0].formatted_address + "<br />";
+              // other components
+              for (var i = 0; i < results[0].address_components.length; i++) {
+                info += results[0].address_components[i].types.join() + ": " +
+                        results[0].address_components[i].long_name + " | " +
+                        results[0].address_components[i].short_name + "<br />";
+              }
+              callback(info);
+            } else {
+              callback("No results found");
+            }
+          } else {
+            callback("Geocoder failed due to: " + status);
+          }
+        });
       }
     </script>
   </head>
   <body>
-    <h2>Current position:</h2>
-    <div id="position"></div><br />
-    <div id="map"></div>
+    <div class="container">
+      <div class="row">
+        <h2>Current position:</h2>
+      </div>
+      <div class="row">
+        <div class="col-sm-6">
+          <div id="position"></div><br />
+          <div id="location"></div>
+        </div><br />
+        <div class="col-sm-6">
+          <div id="map"></div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
