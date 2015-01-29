@@ -39,12 +39,12 @@
 
       function showPosition(position) {
         console.log("Position received: " + JSON.stringify(position));
-        $("#position").html("Latitude: " + position.coords.latitude + "<br />" +
-                "Longitude: " + position.coords.longitude + "<br />" +
-                "Position Accuracy: " + position.coords.accuracy + "<br />" +
-                "Altitude: " + position.coords.altitude + " ([-]" + position.coords.altitudeAccuracy + ")<br />" +
-                "Heading: " + position.coords.heading + "<br />" +
-                "Speed: " + position.coords.speed + "<br />" +
+        $("#position").html("<table><tr><td>Latitude</td><td>: " + position.coords.latitude + "</td></tr>" +
+                "<tr><td>Longitude</td><td>: " + position.coords.longitude + "</td></tr>" +
+                "<tr><td>Position Accuracy</td><td>: " + position.coords.accuracy + "</td></tr>" +
+                "<tr><td>Altitude</td><td>: " + position.coords.altitude + " ([-]" + position.coords.altitudeAccuracy + ")</td></tr>" +
+                "<tr><td>Heading</td><td>: " + position.coords.heading + "</td></tr>" +
+                "<tr><td>Speed</td><td>: " + position.coords.speed + "</td></tr></table>" +
                 "<br />(<i>Last updated at " + new Date(position.timestamp) + "</i>)");
         locationName(position.coords.latitude, position.coords.longitude, showLocation);
       }
@@ -82,9 +82,9 @@
           if (status == google.maps.GeocoderStatus.OK) {
             var stringResult = "<table>";
 //            $(types).each(function(index, element) {
-              $(results).each(function(index, element) {
-                stringResult += "<tr><td>" + element.address_components[0].types[0] + "</td><td>: " + element.address_components[0].long_name + "</td></tr>";
-              });
+            $(results).each(function(index, element) {
+              stringResult += "<tr><td>" + element.address_components[0].types[0] + "</td><td>: " + element.address_components[0].long_name + "</td></tr>";
+            });
 //            });
             stringResult += "</table>";
             callback(stringResult);
@@ -98,13 +98,15 @@
   <body>
     <div class="container container-fluid">
       <div class="row">
-        <h2>Current position:</h2>
-      </div>
-      <div class="row">
         <div class="">
-          <div id="position"></div><br />
-          <div id="location"></div>
-        </div><br />
+          <h2>Current Location:</h2>
+          <div id="location">Loading...</div>
+        </div>
+        <br /><br />
+        <div class="">
+          <b>Position data:</b>
+          <div id="position">Searching...</div>
+        </div>
       </div>
     </div>
   </body>
