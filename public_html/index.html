@@ -9,6 +9,26 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script src="js/location.js"></script>
     <script>
+      // Types of location data
+      var types = [
+        "subpremise",
+        "premise",
+        "neighborhood",
+        "sublocality_level_5",
+        "sublocality_level_4",
+        "sublocality_level_3",
+        "sublocality_level_2",
+        "sublocality_level_1",
+        "sublocality",
+        "locality",
+        "administrative_area_level_5",
+        "administrative_area_level_4",
+        "administrative_area_level_3",
+        "administrative_area_level_2",
+        "administrative_area_level_1",
+        "country"
+      ];
+
       $(document).ready(function() {
         if (navigator.geolocation) {
           navigator.geolocation.watchPosition(showPosition, showError);
@@ -16,6 +36,7 @@
           $("#position").html("Geolocation is not supported by this browser.");
         }
       });
+
       function showPosition(position) {
         console.log("Position received: " + JSON.stringify(position));
         $("#position").html("Latitude: " + position.coords.latitude + "<br />" +
@@ -25,7 +46,6 @@
                 "Heading: " + position.coords.heading + "<br />" +
                 "Speed: " + position.coords.speed + "<br />" +
                 "<br />(<i>Last updated at " + new Date(position.timestamp) + "</i>)");
-        showMap(position.coords.latitude, position.coords.longitude);
         locationName(position.coords.latitude, position.coords.longitude, showLocation);
       }
 
@@ -48,16 +68,6 @@
         }
       }
 
-      function showMap(latitude, longitude) {
-        var latlon = latitude + "," + longitude;
-        var img_url = "http://maps.googleapis.com/maps/api/staticmap?center=" + latlon + "&zoom=14&size=400x300&sensor=false";
-        $("#map").html("<img src='" + img_url + "'>");
-      }
-
-      function clearMap() {
-        $("#map").html("");
-      }
-
       function showLocation(location) {
         $("#location").html(location);
       }
@@ -70,19 +80,14 @@
         var latlng = new google.maps.LatLng(lat, lng);
         new google.maps.Geocoder().geocode({'latLng': latlng}, function(results, status) {
           if (status == google.maps.GeocoderStatus.OK) {
-            if (results[1]) {
-              //formatted address
-              var info = "Address: " + results[0].formatted_address + "<br />";
-              // other components
-              for (var i = 0; i < results[0].address_components.length; i++) {
-                info += results[0].address_components[i].types.join() + ": " +
-                        results[0].address_components[i].long_name + " | " +
-                        results[0].address_components[i].short_name + "<br />";
-              }
-              callback(info);
-            } else {
-              callback("No results found");
-            }
+            var stringResult = "<table>";
+//            $(types).each(function(index, element) {
+              $(results).each(function(index, element) {
+                stringResult += "<tr><td>" + element.address_components[0].types[0] + "</td><td>: " + element.address_components[0].long_name + "</td></tr>";
+              });
+//            });
+            stringResult += "</table>";
+            callback(stringResult);
           } else {
             callback("Geocoder failed due to: " + status);
           }
@@ -91,18 +96,15 @@
     </script>
   </head>
   <body>
-    <div class="container">
+    <div class="container container-fluid">
       <div class="row">
         <h2>Current position:</h2>
       </div>
       <div class="row">
-        <div class="col-sm-6">
+        <div class="">
           <div id="position"></div><br />
           <div id="location"></div>
         </div><br />
-        <div class="col-sm-6">
-          <div id="map"></div>
-        </div>
       </div>
     </div>
   </body>
